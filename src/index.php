@@ -1,7 +1,6 @@
 <?php
 require "database.php";
 session_start();
-
 $conn = connect();
 
 if(!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
@@ -10,7 +9,7 @@ if(!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
 
 function print_sizes($name, $sizes){
     $i = 0;
-    foreach($sizes as $k2=> $v2) {
+    foreach($sizes as $v2) {
         echo "<input type='radio' name='".$name."'";
         if($i == 0) {
             echo " checked ";

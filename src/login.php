@@ -1,11 +1,6 @@
 <?php
     require "database.php";
     session_start();
-
-    $servername = "localhost";
-    $username = "scuola";
-    $password = "scuola";
-    $database = "fastfood";
     $conn = connect();
 
     if(isset($_POST['logout'])){
@@ -27,14 +22,16 @@
             }else{
                 $_SESSION['login_error'] = "Username o password errati";
             }
-        }else if (isset($_POST['register'])) {
-            $_SESSION['loggedin'] = register($conn, $_POST['username'], $_POST['password']);
-            if ($_SESSION['loggedin'] !== null) {
-                $_SESSION['username'] = $_POST['username'];
-                header("Location: index.php");
-                die();
-            }else{
-                $_SESSION['login_error'] = "Errore di registrazione";
+        }else {
+            if (isset($_POST['register'])) {
+                $_SESSION['loggedin'] = register($conn, $_POST['username'], $_POST['password']);
+                if ($_SESSION['loggedin'] !== null) {
+                    $_SESSION['username'] = $_POST['username'];
+                    header("Location: index.php");
+                    die();
+                } else {
+                    $_SESSION['login_error'] = "Errore di registrazione";
+                }
             }
         }
     }
@@ -42,13 +39,13 @@
     $username = $password = "";
 ?>
 
-<html>
+<html lang="it">
 <head>
     <title>Login</title>
     <link rel="stylesheet" href="../style/login.css">
 </head>
 <body>
-    <img src="../images/Logo.png">
+    <img src="../images/Logo.png" alt="logo">
     <form class="login" action="login.php" method="post">
         <h1 class="title">LOGIN</h1>
         <label for="username">USERNAME</label>

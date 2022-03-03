@@ -1,11 +1,6 @@
 <?php
     require 'database.php';
     session_start();
-
-    $servername = "localhost";
-    $username = "scuola";
-    $password = "scuola";
-    $database = "fastfood";
     $conn = connect();
 
     if((!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) && isAdmin($conn, $_SESSION['username'])) {
@@ -13,7 +8,7 @@
     }
 ?>
 
-<html>
+<html lang="it">
 <head>
     <title>Visualizza</title>
     <link rel="stylesheet" href="../style/select.css">

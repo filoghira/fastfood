@@ -1,20 +1,14 @@
 <?php
-    require 'database.php';
-    session_start();
+require 'database.php';
+session_start();
+$conn = connect();
 
-    $servername = "localhost";
-    $username = "scuola";
-    $password = "scuola";
-    $database = "fastfood";
-    $conn = connect();
-
-    if((!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) && isAdmin($conn, $_SESSION['username'])) {
-        header("Location: login.php");
-    }
-
+if((!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) && isAdmin($conn, $_SESSION['username'])) {
+    header("Location: login.php");
+}
 ?>
 
-<html>
+<html lang="it">
 <head>
     <title>FastFood</title>
     <link rel="stylesheet" type="text/css" href="../style/insert.css">

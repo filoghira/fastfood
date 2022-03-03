@@ -1,14 +1,13 @@
 <?php
 
-function connect() {
+function connect(): ?PDO
+{
     $host = "localhost";
     $username = "scuola";
     $password = "scuola";
     $database = "fastfood";
 
-    $URI = "mysql:host=$host";
-    if($database)
-        $URI .= ";dbname=$database";
+    $URI = "mysql:host=$host".";dbname=$database";
 
     try {
         $conn = new PDO($URI, $username, $password);
@@ -17,6 +16,7 @@ function connect() {
     } catch(PDOException $e) {
         echo "Connection failed: " . $e->getMessage();
     }
+    return null;
 }
 
 function isAdmin($conn, $username): bool
@@ -32,7 +32,8 @@ function isAdmin($conn, $username): bool
     return false;
 }
 
-function insert_product($conn, $name, $price, $size, $category) {
+function insert_product($conn, $name, $price, $size, $category): bool
+{
     try {
         $stmt = $conn->prepare("INSERT INTO t_product (name, price, my_size, typeID) VALUES (:name, :price, :size, :type)");
         $stmt->bindParam(':name', $name);
@@ -57,6 +58,7 @@ function select_products($conn)
     } catch (PDOException $e) {
         echo "Select failed: " . $e->getMessage();
     }
+    return null;
 }
 
 function select_types($conn) {
@@ -68,6 +70,7 @@ function select_types($conn) {
     } catch (PDOException $e) {
         echo "Select failed: " . $e->getMessage();
     }
+    return null;
 }
 
 function select_menu($conn)
@@ -80,6 +83,7 @@ function select_menu($conn)
     } catch (PDOException $e) {
         echo "Select failed: " . $e->getMessage();
     }
+    return null;
 }
 
 function menu_sizes($conn, $menuName)
@@ -93,6 +97,7 @@ function menu_sizes($conn, $menuName)
     } catch (PDOException $e) {
         echo "Select failed: " . $e->getMessage();
     }
+    return null;
 }
 
 function get_menu_composition($conn, $menuName) {
@@ -105,6 +110,7 @@ function get_menu_composition($conn, $menuName) {
     } catch (PDOException $e) {
         echo "Select failed: " . $e->getMessage();
     }
+    return null;
 }
 
 function product_sizes($conn, $productName)
@@ -118,6 +124,7 @@ function product_sizes($conn, $productName)
     } catch (PDOException $e) {
         echo "Select failed: " . $e->getMessage();
     }
+    return null;
 }
 
 function register($conn, $username, $password)
@@ -145,6 +152,7 @@ function select_users($conn)
     } catch (PDOException $e) {
         echo "Select failed: " . $e->getMessage();
     }
+    return null;
 }
 
 function get_product_cost($conn, $product_id) {
@@ -159,6 +167,7 @@ function get_product_cost($conn, $product_id) {
     } catch (PDOException $e) {
         echo "Get product cost failed: " . $e->getMessage();
     }
+    return null;
 }
 
 function order_product($conn, $receipt_id, $product_id, $quantity): bool
@@ -249,6 +258,7 @@ function get_menu_cost($conn, $menu_id) {
     } catch (PDOException $e) {
         echo "Get product cost failed: " . $e->getMessage();
     }
+    return null;
 }
 
 function login($conn, $username, $password) {
@@ -267,4 +277,5 @@ function login($conn, $username, $password) {
     } catch (PDOException $e) {
         echo "Login failed: " . $e->getMessage();
     }
+    return null;
 }

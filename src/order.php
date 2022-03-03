@@ -6,7 +6,10 @@
         header("Location: login.php");
     }
 
-    function getSize($size): int
+/**
+ * @throws Exception
+ */
+function getSize($size): int
     {
         return match ($size) {
             "S" => 1,
@@ -16,10 +19,6 @@
         };
     }
 
-    $servername = "localhost";
-    $username = "scuola";
-    $password = "scuola";
-    $database = "fastfood";
     $conn = connect();
     $cost = 0;
     unset($_SESSION['cart']);
@@ -53,7 +52,7 @@
         $cost = order($conn, $_SESSION['cart'], $_SESSION['loggedin']);
     }
 ?>
-<html>
+<html lang="it">
     <head>
         <title>L'angolo dell'informatico</title>
         <link rel="stylesheet" href="../style/order.css">

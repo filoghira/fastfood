@@ -6,7 +6,7 @@
     }
 ?>
 
-<html>
+<html lang="it">
 <head>
     <title>Dashboard</title>
     <link rel="stylesheet" href="../style/dashboard.css">
