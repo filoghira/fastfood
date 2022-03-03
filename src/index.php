@@ -40,7 +40,7 @@ $menu = select_menu($conn);
 <html>
 <head>
     <title>L'angolo dell'informatico</title>
-    <link rel="stylesheet" href="style/index.css">
+    <link rel="stylesheet" href="../style/index.css">
 </head>
 <body>
 <form action="order.php" method="post">

@@ -9,7 +9,7 @@
 <html>
 <head>
     <title>Dashboard</title>
-    <link rel="stylesheet" href="style/dashboard.css">
+    <link rel="stylesheet" href="../style/dashboard.css">
 </head>
 <body>
     <h1>DASHBOARD</h1>

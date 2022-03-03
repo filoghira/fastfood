@@ -45,10 +45,10 @@
 <html>
 <head>
     <title>Login</title>
-    <link rel="stylesheet" href="style/login.css">
+    <link rel="stylesheet" href="../style/login.css">
 </head>
 <body>
-    <img src="images/Logo.png">
+    <img src="../images/Logo.png">
     <form class="login" action="login.php" method="post">
         <h1 class="title">LOGIN</h1>
         <label for="username">USERNAME</label>

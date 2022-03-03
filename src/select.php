@@ -16,7 +16,7 @@
 <html>
 <head>
     <title>Visualizza</title>
-    <link rel="stylesheet" href="style/select.css">
+    <link rel="stylesheet" href="../style/select.css">
 </head>
 <body>
     <h1>Elenco utenti</h1>

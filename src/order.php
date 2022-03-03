@@ -56,7 +56,7 @@
 <html>
     <head>
         <title>L'angolo dell'informatico</title>
-        <link rel="stylesheet" href="style/order.css">
+        <link rel="stylesheet" href="../style/order.css">
     </head>
     <body>
         <h1>Ricevuta</h1>

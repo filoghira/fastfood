@@ -17,7 +17,7 @@
 <html>
 <head>
     <title>FastFood</title>
-    <link rel="stylesheet" type="text/css" href="style/insert.css">
+    <link rel="stylesheet" type="text/css" href="../style/insert.css">
 </head>
 <body>
     <h1>Inserisci un nuovo prodotto</h1>
