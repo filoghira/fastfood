@@ -2,11 +2,7 @@
 require "database.php";
 session_start();
 
-$servername = "localhost";
-$username = "scuola";
-$password = "scuola";
-$database = "fastfood";
-$conn = connect($username, $password, $servername, $database);
+$conn = connect();
 
 if(!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
     header("Location: login.php");
@@ -37,7 +33,7 @@ function print_sizes($name, $sizes){
 $products = select_products($conn);
 $menu = select_menu($conn);
 ?>
-<html>
+<html lang="it">
 <head>
     <title>L'angolo dell'informatico</title>
     <link rel="stylesheet" href="../style/index.css">

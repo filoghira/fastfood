@@ -6,7 +6,7 @@
     $username = "scuola";
     $password = "scuola";
     $database = "fastfood";
-    $conn = connect($username, $password, $servername, $database);
+    $conn = connect();
 
     if((!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) && isAdmin($conn, $_SESSION['username'])) {
         header("Location: login.php");

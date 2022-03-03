@@ -6,7 +6,7 @@
     $username = "scuola";
     $password = "scuola";
     $database = "fastfood";
-    $conn = connect($username, $password, $servername, $database);
+    $conn = connect();
 
     if(isset($_POST['logout'])){
         unset($_SESSION['username'], $_SESSION['loggedin']);

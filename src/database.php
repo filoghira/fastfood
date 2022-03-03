@@ -1,6 +1,11 @@
 <?php
 
-function connect($username, $password, $host, $database) {
+function connect() {
+    $host = "localhost";
+    $username = "scuola";
+    $password = "scuola";
+    $database = "fastfood";
+
     $URI = "mysql:host=$host";
     if($database)
         $URI .= ";dbname=$database";

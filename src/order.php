@@ -20,7 +20,7 @@
     $username = "scuola";
     $password = "scuola";
     $database = "fastfood";
-    $conn = connect($username, $password, $servername, $database);
+    $conn = connect();
     $cost = 0;
     unset($_SESSION['cart']);
 
