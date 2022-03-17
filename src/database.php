@@ -7,13 +7,13 @@ function connect(): ?PDO
     $password = "scuola";
     $database = "fastfood";
 
-    $URI = "mysql:host=$host".";dbname=$database";
+    $URI = "mysql:host=$host" . ";dbname=$database";
 
     try {
         $conn = new PDO($URI, $username, $password);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         return $conn;
-    } catch(PDOException $e) {
+    } catch (PDOException $e) {
         echo "Connection failed: " . $e->getMessage();
     }
     return null;
@@ -61,7 +61,8 @@ function select_products($conn)
     return null;
 }
 
-function select_types($conn) {
+function select_types($conn)
+{
     try {
         $stmt = $conn->prepare("SELECT id, name FROM t_type");
         $stmt->execute();
@@ -100,7 +101,8 @@ function menu_sizes($conn, $menuName)
     return null;
 }
 
-function get_menu_composition($conn, $menuName) {
+function get_menu_composition($conn, $menuName)
+{
     try {
         $stmt = $conn->prepare("select t_product.name, t_product.my_size from r_menu_contains, t_product, t_menu where r_menu_contains.product_id=t_product.id and r_menu_contains.menu_id=t_menu.id and t_menu.name= :menuName group by t_product.name");
         $stmt->bindParam(':menuName', $menuName);
@@ -155,7 +157,8 @@ function select_users($conn)
     return null;
 }
 
-function get_product_cost($conn, $product_id) {
+function get_product_cost($conn, $product_id)
+{
     try {
         $stmt = $conn->prepare("SELECT price FROM t_product WHERE id = :id");
         $stmt->bindParam(':id', $product_id);
@@ -170,16 +173,14 @@ function get_product_cost($conn, $product_id) {
     return null;
 }
 
-function order_product($conn, $receipt_id, $product_id, $quantity): bool
+function order_product($conn, $receipt_id, $product_id): int
 {
     try {
         $stmt = $conn->prepare("INSERT INTO r_orderProduct (receipt_id, product_id) VALUES (:rec_id, :prod_id)");
         $stmt->bindParam(':rec_id', $receipt_id);
         $stmt->bindParam(':prod_id', $product_id);
-        for($i = 0; $i < $quantity; $i++) {
-            $stmt->execute();
-        }
-        return true;
+        $stmt->execute();
+        return $conn->lastInsertId();
     } catch (PDOException $e) {
         echo "Order product failed: " . $e->getMessage();
         return false;
@@ -192,7 +193,7 @@ function order_menu($conn, $receipt_id, $menu_id, $quantity): bool
         $stmt = $conn->prepare("INSERT INTO r_orderMenu (receipt_id, menu_id) VALUES (:rec_id, :menu_id)");
         $stmt->bindParam(':rec_id', $receipt_id);
         $stmt->bindParam(':menu_id', $menu_id);
-        for($i = 0; $i < $quantity; $i++) {
+        for ($i = 0; $i < $quantity; $i++) {
             $stmt->execute();
         }
         return true;
@@ -202,18 +203,17 @@ function order_menu($conn, $receipt_id, $menu_id, $quantity): bool
     }
 }
 
-function order($conn, $cart, $receipt) {
-    foreach ($cart as $elem) {
-        if (isset($elem['product_id'])){
-            $order = order_product($conn, $receipt, $elem['product_id'], $elem['quantity']);
-            add_orderProductIng($conn, $order, $elem['ingredients']);
-        } else if (isset($elem['menu_id'])) {
-            order_menu($conn, $receipt, $elem['menu_id'], $elem['quantity']);
+function order($conn, $cart, $receipt)
+{
+    foreach ($cart['products'] as $elem) {
+        for ($i = 0; $i < $elem['qt']; $i++) {
+            $order = order_product($conn, $receipt, $elem['id']);
+            add_orderProductIng($conn, $order, get_updatedIngredients(get_product_ingredients($conn, $elem['product_id']), $elem['ingredients']));
         }
     }
 }
 
-function receipt($conn, $id, $cost): int | bool
+function receipt($conn, $id, $cost): int|bool
 {
     try {
         $stmt = $conn->prepare("INSERT INTO t_receipt (emit_date, total, account_id) VALUES (:e_date, :total, :id)");
@@ -223,13 +223,13 @@ function receipt($conn, $id, $cost): int | bool
         $stmt->bindParam(':id', $id);
         $stmt->execute();
         return $conn->lastInsertId();
-    }catch (PDOException $e) {
+    } catch (PDOException $e) {
         echo $e->getMessage();
         return false;
     }
 }
 
-function add_orderProductIng ($conn, $ordProd, $ingredients): bool
+function add_orderProductIng($conn, $ordProd, $ingredients): bool
 {
     try {
         $ingredient = 0;
@@ -239,7 +239,6 @@ function add_orderProductIng ($conn, $ordProd, $ingredients): bool
         $stmt->bindParam(':ingredient_id', $ingredient);
         $stmt->bindParam(':qt', $qt);
 
-        print_r($ingredients);
         foreach ($ingredients as $ingredient => $qt) {
             $stmt->execute();
         }
@@ -250,7 +249,8 @@ function add_orderProductIng ($conn, $ordProd, $ingredients): bool
     }
 }
 
-function login($conn, $username, $password) {
+function login($conn, $username, $password)
+{
     try {
         $stmt = $conn->prepare("SELECT id, password_hash FROM t_user WHERE username = :usr");
         $stmt->bindParam(':usr', $username);
@@ -258,7 +258,7 @@ function login($conn, $username, $password) {
 
         $stmt->setFetchMode(PDO::FETCH_ASSOC);
         $row = $stmt->fetch();
-        if(password_verify($password, $row['password_hash'])) {
+        if (password_verify($password, $row['password_hash'])) {
             return $row['id'];
         }
 
@@ -269,7 +269,8 @@ function login($conn, $username, $password) {
     return null;
 }
 
-function get_product_ingredients($conn, $product_id) {
+function get_product_ingredients($conn, $product_id)
+{
     try {
         $stmt = $conn->prepare("SELECT ingredient_id, quantity, strict FROM r_product_composition WHERE product_id = :prod_id");
         $stmt->bindParam(':prod_id', $product_id);
@@ -283,7 +284,8 @@ function get_product_ingredients($conn, $product_id) {
     return null;
 }
 
-function get_product_price($conn, $product_id) {
+function get_product_price($conn, $product_id)
+{
     try {
         $stmt = $conn->prepare("SELECT price FROM t_product WHERE id = :prod_id");
         $stmt->bindParam(':prod_id', $product_id);
@@ -298,7 +300,8 @@ function get_product_price($conn, $product_id) {
     return null;
 }
 
-function get_ingredient_price($conn, $ingredient_id) {
+function get_ingredient_price($conn, $ingredient_id)
+{
     try {
         $stmt = $conn->prepare("SELECT price FROM t_ingredient WHERE id = :ing_id");
         $stmt->bindParam(':ing_id', $ingredient_id);
@@ -313,7 +316,8 @@ function get_ingredient_price($conn, $ingredient_id) {
     return null;
 }
 
-function get_sized_product($conn, $product_id, $product_size) {
+function get_sized_product($conn, $product_id, $product_size)
+{
     try {
         $stmt = $conn->prepare("SELECT id FROM t_product WHERE id = :prod_id AND my_size = :size");
         $stmt->bindParam(':prod_id', $product_id);
@@ -328,7 +332,8 @@ function get_sized_product($conn, $product_id, $product_size) {
     return null;
 }
 
-function get_product_name ($conn, $product_id) {
+function get_product_name($conn, $product_id)
+{
     try {
         $stmt = $conn->prepare("SELECT name FROM t_product WHERE id = :id");
         $stmt->bindParam(':id', $product_id);
@@ -343,7 +348,8 @@ function get_product_name ($conn, $product_id) {
     return null;
 }
 
-function get_ingredient_name($conn, $ingredient_id) {
+function get_ingredient_name($conn, $ingredient_id)
+{
     try {
         $stmt = $conn->prepare("SELECT name FROM t_ingredient WHERE id = :id");
         $stmt->bindParam(':id', $ingredient_id);

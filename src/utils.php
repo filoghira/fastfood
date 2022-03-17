@@ -26,3 +26,16 @@ function sizeLetter($size): string
         default => throw new Exception("Errore nella selezione del prodotto"),
     };
 }
+
+function get_updatedIngredients($original, $ingredients)
+{
+    $temp = array();
+    foreach ($original as $ing) {
+        $temp[$ing['ingredient_id']] = $ing['quantity'];
+    }
+
+    foreach($ingredients as $ingredient => $qt){
+        $temp[$ingredient] = $qt;
+    }
+    return $temp;
+}

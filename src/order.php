@@ -25,7 +25,7 @@ if (isset($_SESSION['cart'])){
     }
     $receipt_id = receipt($conn, $_SESSION['loggedin'], $cost);
     order($conn, $cart, $receipt_id);
-    // $_SESSION['cart'] = array();
+    $_SESSION['cart'] = array();
 }
 
 ?>
