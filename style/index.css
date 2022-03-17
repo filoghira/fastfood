@@ -13,17 +13,11 @@ table, tr, td, th {
     text-align: center;
 }
 
-.prodotti {
+form {
+    display: flex;
+    flex-direction: column;
     align-items: center;
-}
-
-.menu {
-    align-items: center;
-}
-
-.dashboard {
-    justify-content: center;
-    align-items: center;
+    text-align: center;
 }
 
 .button {

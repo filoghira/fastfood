@@ -1,56 +1,33 @@
 <?php
-    require "database.php";
-    session_start();
+require "database.php";
+require "utils.php";
+session_start();
 
-    if(!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
-        header("Location: login.php");
-    }
+if(!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) {
+    header("Location: login.php");
+}
 
-/**
- * @throws Exception
- */
-function getSize($size): int
-    {
-        return match ($size) {
-            "S" => 1,
-            "M" => 2,
-            "L" => 3,
-            default => throw new Exception("Errore nella selezione del prodotto"),
-        };
-    }
+$conn = connect();
+$cost = 0;
 
-    $conn = connect();
-    $cost = 0;
-    unset($_SESSION['cart']);
-
-    if (isset($_POST['order'])){
-        foreach ($_POST as $key => $value) {
-            if ($value > 0 && str_starts_with($key, "prod_")){
-                $_SESSION['cart']['products'][str_replace("prod_", "", $key)] = 0;
-            }else if (str_starts_with($key, "p_size_")){
-                $id = str_replace("p_size_", "", $key);
-                if (isset($_SESSION['cart']['products'][$id])) {
-                    try {
-                        $_SESSION['cart']['products'][$id] = getSize($value);
-                    } catch (Exception $e) {
-                        echo $e;
-                    }
-                }
-            }else if ($value > 0 && str_starts_with($key, 'menu_')){
-                $_SESSION['cart']['menu'][str_replace("menu_", "", $key)] = 0;
-            }else  if (str_starts_with($key, "m_size_")){
-                $id = str_replace("m_size_", "", $key);
-                if (isset($_SESSION['cart']['menu'][$id])) {
-                    try {
-                        $_SESSION['cart']['menu'][$id] = getSize($value);
-                    } catch (Exception $e) {
-                        echo $e;
-                    }
-                }
+if (isset($_SESSION['cart'])){
+    $cart = array();
+    foreach ($_SESSION['cart'] as $temp => $value) {
+        if (isset($value['product_id'])){
+            $cart['products'][] = $value;
+            if (isset($value['ingredients'])){
+                $cost += calcola_aggiunte($conn, $value['ingredients'], $value['product_id']);
             }
+        }else if(isset($value['menu_id'])){
+            $cart['menu'][] = $value;
         }
-        $cost = order($conn, $_SESSION['cart'], $_SESSION['loggedin']);
+        $cost += get_product_cost($conn, $value['product_id']) * $value['qt'];
     }
+    $receipt_id = receipt($conn, $_SESSION['loggedin'], $cost);
+    order($conn, $cart, $receipt_id);
+    // $_SESSION['cart'] = array();
+}
+
 ?>
 <html lang="it">
     <head>

@@ -5,7 +5,8 @@ create table if not exists t_user (
                                       id int not null auto_increment primary key,
                                       username varchar(20) not null unique,
                                       password_hash varchar(255) not null,
-                                      auth_level int not null default 0 check ( auth_level >= 0 and auth_level <= 1 )
+                                      auth_level int not null default 0 check ( auth_level >= 0 and auth_level <= 1 ),
+                                      wallet DEC(65, 2) not null default 0 check ( wallet >= 0 )
 );
 
 create table if not exists t_menu (
@@ -50,20 +51,25 @@ create table if not exists r_menu_contains (
 create table if not exists r_product_composition (
                                                      product_id int references t_product(id) ,
                                                      ingredient_id int references t_ingredient(id),
-                                                     quantity float not null default 1 check ( quantity > 0 )
+                                                     quantity float not null default 1 check ( quantity > 0 ),
+                                                     strict bool not null default true
 );
 
 create table if not exists r_orderMenu (
+                                           id int not null primary key auto_increment,
                                            receipt_id int references t_receipt(id) ,
                                            menu_id int references t_menu(id)
 );
 
 create table if not exists r_orderProduct (
-                                              receipt_id int references t_receipt(id) ,
+                                              id int not null primary key auto_increment,
+                                              receipt_id int references t_receipt(id),
                                               product_id int references t_product(id)
 );
 
-create table if not exists r_orderIngredient (
-                                                 receipt_id int references t_receipt(id) ,
-                                                 ingredient_id int references t_ingredient(id)
+create table if not exists r_orderProductIng (
+                                                 id int not null primary key auto_increment,
+                                                 order_product_id int references r_orderProduct(id),
+                                                 ingredient_id int references t_ingredient(id),
+                                                 quantity float not null default 0 check ( quantity >= 0 )
 );

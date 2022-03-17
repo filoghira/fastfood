@@ -202,63 +202,52 @@ function order_menu($conn, $receipt_id, $menu_id, $quantity): bool
     }
 }
 
-function order($conn, $cart, $id): float|bool
+function order($conn, $cart, $receipt) {
+    foreach ($cart as $elem) {
+        if (isset($elem['product_id'])){
+            $order = order_product($conn, $receipt, $elem['product_id'], $elem['quantity']);
+            add_orderProductIng($conn, $order, $elem['ingredients']);
+        } else if (isset($elem['menu_id'])) {
+            order_menu($conn, $receipt, $elem['menu_id'], $elem['quantity']);
+        }
+    }
+}
+
+function receipt($conn, $id, $cost): int | bool
 {
     try {
         $stmt = $conn->prepare("INSERT INTO t_receipt (emit_date, total, account_id) VALUES (:e_date, :total, :id)");
         $date = date("Y-m-d H:i:s");
         $stmt->bindParam(':e_date', $date);
-        $cost = 0;
         $stmt->bindParam(':total', $cost);
         $stmt->bindParam(':id', $id);
-        if(isset($cart['products'])) {
-            foreach ($cart['products'] as $product_id => $quantity) {
-                $cost += get_product_cost($conn, $product_id) * $quantity;
-            }
-        }
-        if(isset($cart['menu'])) {
-            foreach ($cart['menu'] as $menu_id => $quantity) {
-                $cost += get_menu_cost($conn, $menu_id) * $quantity;
-            }
-        }
-        if($cost <= 0) {
-            return false;
-        }
         $stmt->execute();
-
-        $rec_id = $conn->lastInsertId();
-
-        if (isset($cart['products'])) {
-            foreach ($cart['products'] as $product_id => $quantity) {
-                order_product($conn, $rec_id, $product_id, $quantity);
-            }
-        }
-        if (isset($cart['menu'])) {
-            foreach ($cart['menu'] as $menu_id => $quantity) {
-                order_menu($conn, $rec_id, $menu_id, $quantity);
-            }
-        }
-        return (double)$cost;
-
+        return $conn->lastInsertId();
     }catch (PDOException $e) {
         echo $e->getMessage();
         return false;
     }
 }
 
-function get_menu_cost($conn, $menu_id) {
+function add_orderProductIng ($conn, $ordProd, $ingredients): bool
+{
     try {
-        $stmt = $conn->prepare("SELECT price FROM t_menu WHERE id = :id");
-        $stmt->bindParam(':id', $menu_id);
-        $stmt->execute();
+        $ingredient = 0;
+        $qt = 0;
+        $stmt = $conn->prepare("INSERT INTO r_orderProductIng (order_product_id, ingredient_id, quantity) VALUES (:orderProduct_id, :ingredient_id, :qt)");
+        $stmt->bindParam(':orderProduct_id', $ordProd);
+        $stmt->bindParam(':ingredient_id', $ingredient);
+        $stmt->bindParam(':qt', $qt);
 
-        $stmt->setFetchMode(PDO::FETCH_ASSOC);
-        $result = $stmt->fetch();
-        return $result['price'];
+        print_r($ingredients);
+        foreach ($ingredients as $ingredient => $qt) {
+            $stmt->execute();
+        }
+        return true;
     } catch (PDOException $e) {
-        echo "Get product cost failed: " . $e->getMessage();
+        echo "Add order product ingredient failed: " . $e->getMessage();
+        return false;
     }
-    return null;
 }
 
 function login($conn, $username, $password) {
@@ -271,11 +260,100 @@ function login($conn, $username, $password) {
         $row = $stmt->fetch();
         if(password_verify($password, $row['password_hash'])) {
             return $row['id'];
-        }else {
-            return null;
         }
+
+        return null;
     } catch (PDOException $e) {
         echo "Login failed: " . $e->getMessage();
+    }
+    return null;
+}
+
+function get_product_ingredients($conn, $product_id) {
+    try {
+        $stmt = $conn->prepare("SELECT ingredient_id, quantity, strict FROM r_product_composition WHERE product_id = :prod_id");
+        $stmt->bindParam(':prod_id', $product_id);
+        $stmt->execute();
+
+        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll();
+    } catch (PDOException $e) {
+        echo "Get product ingredients failed: " . $e->getMessage();
+    }
+    return null;
+}
+
+function get_product_price($conn, $product_id) {
+    try {
+        $stmt = $conn->prepare("SELECT price FROM t_product WHERE id = :prod_id");
+        $stmt->bindParam(':prod_id', $product_id);
+        $stmt->execute();
+
+        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        $result = $stmt->fetch();
+        return $result['price'];
+    } catch (PDOException $e) {
+        echo "Get product price failed: " . $e->getMessage();
+    }
+    return null;
+}
+
+function get_ingredient_price($conn, $ingredient_id) {
+    try {
+        $stmt = $conn->prepare("SELECT price FROM t_ingredient WHERE id = :ing_id");
+        $stmt->bindParam(':ing_id', $ingredient_id);
+        $stmt->execute();
+
+        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        $result = $stmt->fetch();
+        return $result['price'];
+    } catch (PDOException $e) {
+        echo "Get ingredient price failed: " . $e->getMessage();
+    }
+    return null;
+}
+
+function get_sized_product($conn, $product_id, $product_size) {
+    try {
+        $stmt = $conn->prepare("SELECT id FROM t_product WHERE id = :prod_id AND my_size = :size");
+        $stmt->bindParam(':prod_id', $product_id);
+        $stmt->bindParam(':size', $product_size);
+        $stmt->execute();
+
+        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        return $stmt->fetch()['id'];
+    } catch (PDOException $e) {
+        echo "Get sized product failed: " . $e->getMessage();
+    }
+    return null;
+}
+
+function get_product_name ($conn, $product_id) {
+    try {
+        $stmt = $conn->prepare("SELECT name FROM t_product WHERE id = :id");
+        $stmt->bindParam(':id', $product_id);
+        $stmt->execute();
+
+        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        $result = $stmt->fetch();
+        return $result['name'];
+    } catch (PDOException $e) {
+        echo "Get product name failed: " . $e->getMessage();
+    }
+    return null;
+}
+
+function get_ingredient_name($conn, $ingredient_id) {
+    try {
+        $stmt = $conn->prepare("SELECT name FROM t_ingredient WHERE id = :id");
+        $stmt->bindParam(':id', $ingredient_id);
+        $stmt->execute();
+
+        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        $result = $stmt->fetch();
+        return $result['name'];
+    } catch (PDOException $e) {
+        echo "Get ingredient name failed: " . $e->getMessage();
     }
     return null;
 }
