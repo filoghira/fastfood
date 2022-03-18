@@ -23,9 +23,6 @@ if (isset($_SESSION['cart'])){
         }
         $cost += get_product_cost($conn, $value['product_id']) * $value['qt'];
     }
-    $receipt_id = receipt($conn, $_SESSION['loggedin'], $cost);
-    order($conn, $cart, $receipt_id);
-    $_SESSION['cart'] = array();
 }
 
 ?>
@@ -35,10 +32,23 @@ if (isset($_SESSION['cart'])){
         <link rel="stylesheet" href="../style/order.css">
     </head>
     <body>
+    <?php
+    if (get_userWallet($conn, $_SESSION['user_id']) < $cost){
+        ?>
+        <p class="error">Non hai abbastanza soldi sulla tua carta di credito</p>
+        <?php
+    }else {
+        $receipt_id = receipt($conn, $_SESSION['loggedin'], $cost);
+        order($conn, $cart, $receipt_id);
+        $_SESSION['cart'] = array();
+        ?>
         <h1>Ricevuta</h1>
         <h3>Totale: <?php echo number_format($cost, 2)."€"?></h3>
-        <form>
-            <input type="button" value="Indietro" onclick="window.location.href='index.php'">
-        </form>
+        <?php
+    }
+    ?>
+    <form>
+        <input type="button" value="Indietro" onclick="window.location.href='index.php'">
+    </form>
     </body>
 </html>

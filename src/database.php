@@ -242,6 +242,21 @@ function order($conn, $cart, $receipt)
     }
 }
 
+function get_userWallet($conn, $user_id)
+{
+    try {
+        $stmt = $conn->prepare("SELECT wallet FROM t_user WHERE id = :id");
+        $stmt->bindParam(':id', $user_id);
+        $stmt->execute();
+        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        $result = $stmt->fetch();
+        return $result['wallet'];
+    } catch (PDOException $e) {
+        echo "Get user wallet failed: " . $e->getMessage();
+    }
+    return null;
+}
+
 function receipt($conn, $id, $cost): int|bool
 {
     try {
