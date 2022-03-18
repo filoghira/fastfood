@@ -14,8 +14,11 @@
 <body>
     <h1>DASHBOARD</h1>
     <p class="welcome">Benvenuto <?php echo $_SESSION['username']; ?>!</p>
-    <form action="insert.php">
+    <form action="newProduct.php">
         <input type="submit" name="prod" value="Inserisci prodotti">
+    </form>
+    <form action="newMenu.php">
+        <input type="submit" name="prod" value="Inserisci menu">
     </form>
     <form action="select.php">
         <input type="submit" name="prod" value="Visualizza utenti">

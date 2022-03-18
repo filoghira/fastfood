@@ -48,6 +48,35 @@ function insert_product($conn, $name, $price, $size, $category): bool
     return false;
 }
 
+function insert_menu($conn, $name, $price, $size): int
+{
+    try {
+        $stmt = $conn->prepare("INSERT INTO t_menu (name, price, my_size) VALUES (:name, :price, :size)");
+        $stmt->bindParam(':name', $name);
+        $stmt->bindParam(':price', $price);
+        $stmt->bindParam(':size', $size);
+        $stmt->execute();
+        return $conn->lastInsertID();
+    } catch (PDOException $e) {
+        echo "Insert failed: " . $e->getMessage();
+    }
+    return false;
+}
+
+function insert_menu_composition($conn, $menuID, $prodID): bool
+{
+    try {
+        $stmt = $conn->prepare("INSERT INTO r_menu_contains (menu_id, product_id) VALUES (:mID, :pID)");
+        $stmt->bindParam(':mID', $menuID);
+        $stmt->bindParam(':pID', $prodID);
+        $stmt->execute();
+        return true;
+    } catch (PDOException $e) {
+        echo "Insert failed: " . $e->getMessage();
+    }
+    return false;
+}
+
 function select_products($conn)
 {
     try {
@@ -294,6 +323,22 @@ function get_product_price($conn, $product_id)
         $stmt->setFetchMode(PDO::FETCH_ASSOC);
         $result = $stmt->fetch();
         return $result['price'];
+    } catch (PDOException $e) {
+        echo "Get product price failed: " . $e->getMessage();
+    }
+    return null;
+}
+
+function get_product_size($conn, $product_id)
+{
+    try {
+        $stmt = $conn->prepare("SELECT my_size FROM t_product WHERE id = :prod_id");
+        $stmt->bindParam(':prod_id', $product_id);
+        $stmt->execute();
+
+        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        $result = $stmt->fetch();
+        return $result['my_size'];
     } catch (PDOException $e) {
         echo "Get product price failed: " . $e->getMessage();
     }

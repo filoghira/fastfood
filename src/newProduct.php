@@ -11,11 +11,11 @@ if((!isset($_SESSION['loggedin']) || !$_SESSION['loggedin']) && isAdmin($conn, $
 <html lang="it">
 <head>
     <title>FastFood</title>
-    <link rel="stylesheet" type="text/css" href="../style/insert.css">
+    <link rel="stylesheet" type="text/css" href="../style/newProduct.css">
 </head>
 <body>
     <h1>Inserisci un nuovo prodotto</h1>
-    <form action="insert.php" method="post">
+    <form action="newProduct.php" method="post">
         <label for="nome">Nome</label>
         <br>
         <input type="text" name="nome" id="nome" required>
