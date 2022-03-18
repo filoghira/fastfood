@@ -144,11 +144,25 @@ function get_menu_composition($conn, $menuName)
     return null;
 }
 
-function product_sizes($conn, $productName)
+function get_productSizes($conn, $productName)
 {
     try {
         $stmt = $conn->prepare("SELECT my_size, price FROM t_product WHERE name = :prodName");
         $stmt->bindParam(':prodName', $productName);
+        $stmt->execute();
+        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll();
+    } catch (PDOException $e) {
+        echo "Select failed: " . $e->getMessage();
+    }
+    return null;
+}
+
+function get_menuSizes($conn, $menuName)
+{
+    try {
+        $stmt = $conn->prepare("SELECT my_size, price FROM t_menu WHERE name = :menuName");
+        $stmt->bindParam(':menuName', $menuName);
         $stmt->execute();
         $stmt->setFetchMode(PDO::FETCH_ASSOC);
         return $stmt->fetchAll();
@@ -186,7 +200,7 @@ function select_users($conn)
     return null;
 }
 
-function get_product_cost($conn, $product_id)
+function get_productCost($conn, $product_id)
 {
     try {
         $stmt = $conn->prepare("SELECT price FROM t_product WHERE id = :id");
@@ -198,6 +212,22 @@ function get_product_cost($conn, $product_id)
         return $result['price'];
     } catch (PDOException $e) {
         echo "Get product cost failed: " . $e->getMessage();
+    }
+    return null;
+}
+
+function get_menuCost($conn, $product_id)
+{
+    try {
+        $stmt = $conn->prepare("SELECT price FROM t_menu WHERE id = :id");
+        $stmt->bindParam(':id', $product_id);
+        $stmt->execute();
+
+        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        $result = $stmt->fetch();
+        return $result['price'];
+    } catch (PDOException $e) {
+        echo "Get menu cost failed: " . $e->getMessage();
     }
     return null;
 }
@@ -238,6 +268,11 @@ function order($conn, $cart, $receipt)
         for ($i = 0; $i < $elem['qt']; $i++) {
             $order = order_product($conn, $receipt, $elem['id']);
             add_orderProductIng($conn, $order, get_updatedIngredients(get_product_ingredients($conn, $elem['product_id']), $elem['ingredients']));
+        }
+    }
+    foreach ($cart['menu'] as $elem) {
+        for ($i = 0; $i < $elem['qt']; $i++) {
+            order_menu($conn, $receipt, $elem['id'], $elem['size']);
         }
     }
 }
@@ -305,12 +340,28 @@ function login($conn, $username, $password)
         if (password_verify($password, $row['password_hash'])) {
             return $row['id'];
         }
-
         return null;
     } catch (PDOException $e) {
         echo "Login failed: " . $e->getMessage();
     }
     return null;
+}
+
+function pay($conn, $userID, $amount): bool
+{
+    try {
+        $stmt = $conn->prepare("UPDATE t_user SET wallet = :amount WHERE id = :userID");
+        $stmt->bindParam(':amount', $amount);
+        $stmt->bindParam(':userID', $userID);
+        $amount = get_userWallet($conn, $userID) - $amount;
+        $stmt->execute();
+
+        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        return true;
+    } catch (PDOException $e) {
+        echo "Login failed: " . $e->getMessage();
+    }
+    return false;
 }
 
 function get_product_ingredients($conn, $product_id)
@@ -328,7 +379,7 @@ function get_product_ingredients($conn, $product_id)
     return null;
 }
 
-function get_product_price($conn, $product_id)
+function get_productPrice($conn, $product_id)
 {
     try {
         $stmt = $conn->prepare("SELECT price FROM t_product WHERE id = :prod_id");
@@ -340,6 +391,22 @@ function get_product_price($conn, $product_id)
         return $result['price'];
     } catch (PDOException $e) {
         echo "Get product price failed: " . $e->getMessage();
+    }
+    return null;
+}
+
+function get_menuPrice($conn, $product_id)
+{
+    try {
+        $stmt = $conn->prepare("SELECT price FROM t_menu WHERE id = :prod_id");
+        $stmt->bindParam(':prod_id', $product_id);
+        $stmt->execute();
+
+        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        $result = $stmt->fetch();
+        return $result['price'];
+    } catch (PDOException $e) {
+        echo "Get menu price failed: " . $e->getMessage();
     }
     return null;
 }
@@ -404,6 +471,22 @@ function get_product_name($conn, $product_id)
         return $result['name'];
     } catch (PDOException $e) {
         echo "Get product name failed: " . $e->getMessage();
+    }
+    return null;
+}
+
+function get_menuName($conn, $menuID)
+{
+    try {
+        $stmt = $conn->prepare("SELECT name FROM t_menu WHERE id = :id");
+        $stmt->bindParam(':id', $menuID);
+        $stmt->execute();
+
+        $stmt->setFetchMode(PDO::FETCH_ASSOC);
+        $result = $stmt->fetch();
+        return $result['name'];
+    } catch (PDOException $e) {
+        echo "Get menu name failed: " . $e->getMessage();
     }
     return null;
 }

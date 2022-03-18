@@ -1,6 +1,6 @@
 <?php
-require "database.php";
-require "utils.php";
+require "../database/database.php";
+require "../utils/utils.php";
 session_start();
 $conn = connect();
 $prods = select_products($conn);
@@ -8,14 +8,14 @@ $prods = select_products($conn);
 <html lang="">
 <head>
     <title>Angolo Informatico</title>
-    <link rel="stylesheet" href="../style/index.css">
+    <link rel="stylesheet" href="../../style/index.css">
 </head>
 <body>
 <form action="" method="post">
     <?php
     if (isset($_POST['cancel'])){
         unset($_SESSION['selection']);
-        header("Location: index.php");
+        header("Location: ../index.php");
         die();
     }
 
@@ -25,7 +25,7 @@ $prods = select_products($conn);
         $_SESSION['selection']['qt'] = $_POST['quantity'];
 
         $name = get_product_name($conn, $_POST['product']);
-        $sizes = product_sizes($conn, $name);
+        $sizes = get_productSizes($conn, $name);
         ?>
         <h1>Seleziona la dimensione - <?php echo $name?></h1>
         <label>
@@ -76,9 +76,9 @@ $prods = select_products($conn);
                     $_SESSION['selection']['ingredients'][str_replace("ing_", "", $k)] = $val;
                 }
             }
-            $_SESSION['cart'][] = $_SESSION['selection'];
+            $_SESSION['cart']['products'][] = $_SESSION['selection'];
             unset($_SESSION['selection']);
-            header("Location: index.php");
+            header("Location: ../index.php");
             die();
         }
     }else if (isset($_POST['add'])){
@@ -87,9 +87,9 @@ $prods = select_products($conn);
                 $_SESSION['selection']['ingredients'][str_replace("ing_", "", $k)] = $val;
             }
         }
-        $_SESSION['cart'][] = $_SESSION['selection'];
+        $_SESSION['cart']['products'][] = $_SESSION['selection'];
         unset($_SESSION['selection']);
-        header("Location: index.php");
+        header("Location: ../index.php");
         die();
     }else {
         ?>
